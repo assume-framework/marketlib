@@ -12,6 +12,18 @@ from emarketpy.market_objects import Order
 
 
 def create_orderbook(order: Order = None, node_ids=[0], count=100, seed=30):
+    """
+    Creates a list of random orders for testing purposes.
+    
+    Args:
+        order (Order, optional): A base order to use as a template. Defaults to None.
+        node_ids (list[int], optional): A list of node IDs to generate orders for. Defaults to [0].
+        count (int, optional): The number of orders to generate per node. Defaults to 100.
+        seed (int, optional): A seed value for the random number generator. Defaults to 30.
+    
+    Returns:
+        list[Order]: A list of randomly generated orders.
+    """
     if not order:
         start = datetime.today()
         end = datetime.today() + timedelta(hours=1)
@@ -48,9 +60,6 @@ def extend_orderbook(
     volume,
     price,
     orderbook=None,
-    bid_type="SB",
-    min_acceptance_ratio=None,
-    parent_bid_id=None,
     node="node0",
 ):
     """
@@ -63,63 +72,27 @@ def extend_orderbook(
     if volume == 0:
         return orderbook
 
-    if bid_type == "BB" or bid_type == "LB":
-        if volume < 0:
-            agent_id = f"block_dem{len(orderbook)+1}"
-        else:
-            agent_id = f"block_gen{len(orderbook)+1}"
+    if volume < 0:
+        agent_id = f"dem{len(orderbook)+1}"
+    else:
+        agent_id = f"gen{len(orderbook)+1}"
 
+    for prod in products:
         order: Order = {
-            "start_time": products[0][0],
-            "end_time": products[-1][1],
+            "start_time": prod[0],
+            "end_time": prod[1],
             "agent_id": agent_id,
             "bid_id": f"bid_{len(orderbook)+1}",
-            "volume": {product[0]: volume for product in products},
+            "volume": volume,
             "price": price,
             "only_hours": None,
-            "bid_type": bid_type,
-            "parent_bid_id": parent_bid_id,
         }
 
-        if min_acceptance_ratio is not None:
-            order.update({"min_acceptance_ratio": min_acceptance_ratio})
-        else:
-            order.update({"min_acceptance_ratio": 0})
 
         if node is not None:
             order.update({"node": node})
 
         orderbook.append(order)
-
-    else:
-        if volume < 0:
-            agent_id = f"dem{len(orderbook)+1}"
-        else:
-            agent_id = f"gen{len(orderbook)+1}"
-
-        for product in products:
-            order: Order = {
-                "start_time": product[0],
-                "end_time": product[1],
-                "agent_id": agent_id,
-                "bid_id": f"bid_{len(orderbook)+1}",
-                "volume": volume,
-                "accepted_volume": 0,
-                "price": price,
-                "accepted_price": None,
-                "only_hours": None,
-                "bid_type": bid_type,
-                "parent_bid_id": parent_bid_id,
-            }
-
-            if min_acceptance_ratio is not None:
-                order.update({"min_acceptance_ratio": min_acceptance_ratio})
-            else:
-                order.update({"min_acceptance_ratio": 0})
-            if node is not None:
-                order.update({"node": node})
-
-            orderbook.append(order)
 
     return orderbook
 

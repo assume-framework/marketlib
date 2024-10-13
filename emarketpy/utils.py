@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .market_objects import MarketProduct, Orderbook
+from emarketpy.market_objects import MarketProduct, Orderbook
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,7 @@ def get_available_products(market_products: list[MarketProduct], startdate: date
     return options
 
 
-def plot_orderbook(orderbook: Orderbook, results: list[dict]):
+def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", show_text: bool=True):
     """
     Plot the merit order of bids for each node in a separate subplot.
 
@@ -105,28 +105,29 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict]):
 
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
+    #orderbook = all_orders
+    #results = meta
 
     bids = defaultdict(list)
     orderbook.sort(key=itemgetter("node"))
-    for node_id, orders in groupby(orderbook, itemgetter("node")):
-        bids[node_id].extend(list(map(itemgetter("price", "volume"), orders)))
-    number_of_nodes = len(bids.keys()) or 1
+    nodes = set(o["node"] for o in orderbook)
+    number_of_nodes = len(nodes)
 
     fig, ax = plt.subplots(1, number_of_nodes, sharey=True)
     if number_of_nodes == 1:
         ax = [ax]
 
     # split the bids into buy and sell bids for each node separately
-    for i in range(number_of_nodes):
+    i = 0
+    for node_id, orders in groupby(orderbook, itemgetter("node")):
+        orders = list(orders)
         # split the bids into buy and sell bids in lists of tuples
-        supply_bids = [(price, quantity) for price, quantity in bids[i] if quantity > 0]
-        demand_bids = [
-            (price, -quantity) for price, quantity in bids[i] if quantity < 0
-        ]
+        supply_bids = [o for o in orders if o["volume"] > 0]
+        demand_bids = [o for o in orders if o["volume"] < 0]
 
         # sort the bids by price
-        supply_bids.sort(key=lambda x: x[0])
-        demand_bids.sort(key=lambda x: x[0], reverse=True)
+        supply_bids.sort(key=itemgetter("price", "volume"))
+        demand_bids.sort(key=itemgetter("price", "volume"), reverse=True)
 
         # find the cumulative sum of the quantity of the bids
         cum_supply_bids = 0
@@ -135,30 +136,57 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict]):
 
         # iterate through supply bids and plot them
         for n, bid in enumerate(supply_bids):
-            price, quantity = bid
+            price, quantity = bid["price"], bid["volume"]
             ax[i].plot(
-                [cum_supply_bids, cum_supply_bids + quantity], [price, price], "b-"
+                [cum_supply_bids, cum_supply_bids + quantity], [price, price], "b--"
             )
+            if "accepted_volume" in bid.keys():
+                acc_quantity = bid["accepted_volume"]
+                ax[i].plot(
+                    [cum_supply_bids, cum_supply_bids + acc_quantity],
+                    [price, price],
+                    "b-",
+                )
             cum_supply_bids += quantity
             if n < len(supply_bids) - 1:
                 ax[i].plot(
                     [cum_supply_bids, cum_supply_bids],
-                    [price, supply_bids[n + 1][0]],
-                    "b-",
+                    [price, supply_bids[n + 1]["price"]],
+                    "b--",
                 )
+                if "accepted_volume" in supply_bids[n + 1].keys():
+                    ax[i].plot(
+                        [cum_supply_bids, cum_supply_bids],
+                        [price, supply_bids[n + 1]["price"]],
+                        "b-",
+                    )
         # iterate through demand bids and plot them
         for n, bid in enumerate(demand_bids):
-            price, quantity = bid
+            price, quantity = bid["price"], -bid["volume"]
             ax[i].plot(
-                [cum_demand_bids, cum_demand_bids + quantity], [price, price], "r-"
+                [cum_demand_bids, cum_demand_bids + quantity], [price, price], "r--"
             )
+            if "accepted_volume" in bid.keys():
+                acc_quantity = -bid["accepted_volume"]
+                ax[i].plot(
+                    [cum_demand_bids, cum_demand_bids + acc_quantity], [price, price], "r-"
+                )
+
             cum_demand_bids += quantity
             if n < len(demand_bids) - 1:
                 ax[i].plot(
                     [cum_demand_bids, cum_demand_bids],
-                    [price, demand_bids[n + 1][0]],
-                    "r-",
+                    [price, demand_bids[n + 1]["price"]],
+                    "r--",
                 )
+                if "accepted_volume" in demand_bids[n + 1].keys():
+                    ax[i].plot(
+                        [cum_demand_bids, cum_demand_bids],
+                        [price, demand_bids[n + 1]["price"]],
+                        "r-",
+                    )
+
+
         # plot the market clearing price and quantity
         if len(results) == i:
             price = 0
@@ -173,23 +201,24 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict]):
         ax[i].plot([0, contracted_supply], [price, price], "k--")
         ax[i].plot(contracted_supply, price, "ko")
 
-        # add text under the plot to show the market clearing price and quantity
-        ax[i].text(0.05, -0.3, "Results:", transform=ax[i].transAxes)
-        ax[i].text(0.05, -0.375, f"Price: {price:.1f}", transform=ax[i].transAxes)
-        ax[i].text(
-            0.05,
-            -0.45,
-            f"Accepted supply: {contracted_supply:.1f}",
-            transform=ax[i].transAxes,
-        )
-        ax[i].text(
-            0.05,
-            -0.525,
-            f"Accepted demand: {contracted_demand:.1f}",
-            transform=ax[i].transAxes,
-        )
-        ax[i].text(0.05, -0.6, f"Total Export: {inflow:.1f}", transform=ax[i].transAxes)
-        ax[i].set_title(f"Node {str(i)}")
+        if show_text:
+            # add text under the plot to show the market clearing price and quantity
+            ax[i].text(0.05, -0.3, "Results:", transform=ax[i].transAxes)
+            ax[i].text(0.05, -0.375, f"Price: {price:.1f}", transform=ax[i].transAxes)
+            ax[i].text(
+                0.05,
+                -0.45,
+                f"Accepted supply: {contracted_supply:.1f}",
+                transform=ax[i].transAxes,
+            )
+            ax[i].text(
+                0.05,
+                -0.525,
+                f"Accepted demand: {contracted_demand:.1f}",
+                transform=ax[i].transAxes,
+            )
+            ax[i].text(0.05, -0.6, f"Total Export: {inflow:.1f}", transform=ax[i].transAxes)
+        ax[i].set_title(title if title else f"Node {str(i)}")
         ax[i].set_xlabel("Quantity")
         ax[i].set_ylabel("Price")
 
@@ -208,6 +237,7 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict]):
         # set x limits to 0 and max of supply or demand
         ax[i].set_xlim(0, max(cum_supply_bids, cum_demand_bids))
         ax[i].set_ylim(bottom=0)
+        i += 1
     plt.subplots_adjust(wspace=0.3)
 
     return fig, ax

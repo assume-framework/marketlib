@@ -4,6 +4,7 @@
 
 import logging
 import math
+from decimal import Decimal
 from itertools import groupby
 from operator import itemgetter
 
@@ -179,7 +180,8 @@ class MarketRole(MarketMechanism, Role):
                 )
 
         if marketconfig.volume_tick and marketconfig.maximum_bid_volume:
-            if marketconfig.maximum_bid_volume % marketconfig.volume_tick != 0:
+            # modulo with floating point can be a disaster
+            if Decimal(str(marketconfig.maximum_bid_volume)) % Decimal(str(marketconfig.volume_tick)) != 0:
                 logger.warning(
                     f"{marketconfig.market_id} - max volume not a multiple of tick size"
                 )

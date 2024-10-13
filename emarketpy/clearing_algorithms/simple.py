@@ -93,8 +93,8 @@ class PayAsClearRole(MarketRole):
             # generation above it has to be sold for the lower price (or not at all)
             for demand_order in demand_orders:
                 if not supply_orders:
-                    # if no more generation - reject left over demand
-                    rejected_orders.append(demand_order)
+                    # if no more generation - continue
+                    # reject left over demand at the end
                     continue
 
                 # assert dem_vol == gen_vol
@@ -113,7 +113,8 @@ class PayAsClearRole(MarketRole):
                         if should_insert:
                             accepted_supply_orders.append(supply_order)
                         gen_vol += added
-                    else:
+                    # if supply is not partially accepted before, reject it
+                    elif not supply_order.get("accepted_volume"):
                         rejected_orders.append(supply_order)
                 # now we know which orders we need
                 # we only need to see how to arrange it.
@@ -139,9 +140,17 @@ class PayAsClearRole(MarketRole):
                 else:
                     demand_order["accepted_volume"] = demand_order["volume"]
 
-                accepted_demand_orders.append(demand_order)
+                if demand_order["accepted_volume"]:
+                    accepted_demand_orders.append(demand_order)
 
+            # if demand is fulfilled, we do have some additional supply orders
+            # these will be rejected
             for order in supply_orders:
+                # if the order was not accepted partially, it is rejected
+                if not order.get("accepted_volume"):
+                    rejected_orders.append(order)
+
+            for order in demand_orders:
                 # if the order was not accepted partially, it is rejected
                 if not order.get("accepted_volume"):
                     rejected_orders.append(order)

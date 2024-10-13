@@ -185,3 +185,20 @@ def test_market_pay_as_clears_single_demand_more_generation():
     assert meta[0]["price"] == 60
     assert accepted[0]["volume"] == -400
     assert accepted[0]["accepted_volume"] == -400
+
+
+# add test which checks if the clearing price is the highest price of the accepted bids
+def test_market_pay_as_clears_single_demand_more_generation_highest_price():
+    next_opening = simple_dayahead_auction_config.opening_hours.after(datetime.now())
+    products = get_available_products(
+        simple_dayahead_auction_config.market_products, next_opening
+    )
+    assert len(products) == 1
+    """
+    Create Orderbook with constant order volumes and prices:
+        - dem1: volume = -1000, price = 3000
+        - gen1: volume = 1000, price = 100
+        - gen2: volume = 900, price = 50
+    """
+    orderbook = extend_orderbook(products, -400, 3000)
+    orderbook = extend_orderbook(products, 300, 100, orderbook)
