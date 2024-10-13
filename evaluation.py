@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import copy
 from datetime import datetime, timedelta
 
 from dateutil import rrule as rr
@@ -10,9 +9,11 @@ from dateutil.relativedelta import relativedelta as rd
 
 from emarketpy.clearing_algorithms import PayAsClearRole, clearing_mechanisms
 from emarketpy.market_objects import MarketConfig, MarketProduct
-from emarketpy.utils import get_available_products, plot_orderbook
-
-from tests.utils import create_orderbook, extend_orderbook
+from emarketpy.utils import (
+    get_available_products,
+    plot_orderbook,
+)
+from tests.utils import extend_orderbook
 
 simple_dayahead_auction_config = MarketConfig(
     market_id="simple_dayahead_auction",
@@ -35,22 +36,65 @@ products = get_available_products(
     simple_dayahead_auction_config.market_products, next_opening
 )
 
-"""
-Create Orderbook with constant order volumes and prices:
-    - dem1: volume = -1000, price = 3000
-    - gen1: volume = 1000, price = 100
-    - gen2: volume = 900, price = 50
-"""
-
-orderbook = extend_orderbook(products, -1000, 200)
-orderbook = extend_orderbook(products, -800, 20, orderbook)
-orderbook = extend_orderbook(products, 1000, 100, orderbook)
-orderbook = extend_orderbook(products, 900, 50, orderbook)
+# vertical down
+orderbook = extend_orderbook(products, -100, 100)
+orderbook = extend_orderbook(products, -100, 50, orderbook)
+orderbook = extend_orderbook(products, 100, 70, orderbook)
+orderbook = extend_orderbook(products, 100, 80, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta = mr.clear(orderbook, products)
 
-plot_orderbook(accepted, meta)
+all_orders = []
+all_orders.extend(accepted)
+all_orders.extend(rejected)
+plot_orderbook(all_orders, meta, "vertical overlap", show_text=False)
+
+### intersect demand change
+orderbook = extend_orderbook(products, -100, 100)
+orderbook = extend_orderbook(products, -100, 10, orderbook)
+orderbook = extend_orderbook(products, 80, 120, orderbook)
+orderbook = extend_orderbook(products, 120, 80, orderbook)
+
+mr = PayAsClearRole(simple_dayahead_auction_config)
+accepted, rejected, meta = mr.clear(orderbook, products)
+
+all_orders = []
+all_orders.extend(accepted)
+all_orders.extend(rejected)
+plot_orderbook(all_orders, meta, "intersection demand change", show_text=False)
+
+
+### intersect supply change
+orderbook = extend_orderbook(products, -100, 100)
+orderbook = extend_orderbook(products, -100, 10, orderbook)
+orderbook = extend_orderbook(products, 50, 50, orderbook)
+orderbook = extend_orderbook(products, 150, 120, orderbook)
+
+mr = PayAsClearRole(simple_dayahead_auction_config)
+accepted, rejected, meta = mr.clear(orderbook, products)
+
+all_orders = []
+all_orders.extend(accepted)
+all_orders.extend(rejected)
+plot_orderbook(all_orders, meta, "intersection supply change", show_text=False)
+
+### intersect more expensive price
+orderbook = extend_orderbook(products, -100, 100)
+orderbook = extend_orderbook(products, -90, 50, orderbook)
+orderbook = extend_orderbook(products, -100, 3, orderbook)
+orderbook = extend_orderbook(products, 100, 3, orderbook)
+orderbook = extend_orderbook(products, 100, 50, orderbook)
+orderbook = extend_orderbook(products, 100, 100, orderbook)
+
+mr = PayAsClearRole(simple_dayahead_auction_config)
+accepted, rejected, meta = mr.clear(orderbook, products)
+
+all_orders = []
+all_orders.extend(accepted)
+all_orders.extend(rejected)
+plot_orderbook(all_orders, meta, "horizontal overlap ", show_text=False)
+
 assert meta[0]["demand_volume"] > 0
 assert meta[0]["price"] > 0
 import pandas as pd

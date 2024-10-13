@@ -89,11 +89,11 @@ class PayAsClearAonRole(MarketRole):
                         # as we have sorted before, the other bids/supply_orders can't be matched either
                         # once we get here
                         break
-                # resulting i is the cut point
-                accepted_product_orders.extend(demand_orders[:i])
-                accepted_product_orders.extend(supply_orders[:i])
-                rejected_orders.extend(demand_orders[i:])
-                rejected_orders.extend(supply_orders[i:])
+            # resulting i is the cut point
+            accepted_product_orders.extend(demand_orders[:i])
+            accepted_product_orders.extend(supply_orders[:i])
+            rejected_orders.extend(demand_orders[i:])
+            rejected_orders.extend(supply_orders[i:])
 
             for order in accepted_product_orders:
                 order["accepted_price"] = clear_price
@@ -164,19 +164,19 @@ class PayAsBidAonRole(MarketRole):
                         supply_orders[i]["accepted_volume"] = supply_orders[i]["volume"]
                         demand_orders[i]["accepted_volume"] = demand_orders[i]["volume"]
 
-                        # pay as bid - so the generator gets payed more than he needed to operate
-                        supply_orders[i]["accepted_price"] = demand_orders[i]["price"]
-                        demand_orders[i]["accepted_price"] = demand_orders[i]["price"]
+                        # pay as bid - so the generator gets payed what he needed to produce
+                        supply_orders[i]["accepted_price"] = supply_orders[i]["price"]
+                        demand_orders[i]["accepted_price"] = supply_orders[i]["price"]
 
                     else:
                         # as we have sorted before, the other bids/supply_orders can't be matched either
                         # once we get here
                         break
 
-                accepted_product_orders.extend(demand_orders[:i])
-                accepted_product_orders.extend(supply_orders[:i])
-                rejected_orders.extend(demand_orders[i:])
-                rejected_orders.extend(supply_orders[i:])
+            accepted_product_orders.extend(demand_orders[:i])
+            accepted_product_orders.extend(supply_orders[:i])
+            rejected_orders.extend(demand_orders[i:])
+            rejected_orders.extend(supply_orders[i:])
 
             accepted_orders.extend(accepted_product_orders)
 
