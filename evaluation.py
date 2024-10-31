@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from dateutil import rrule as rr
 from dateutil.relativedelta import relativedelta as rd
 
-from emarketpy.clearing_algorithms import PayAsClearRole, clearing_mechanisms
+from emarketpy.clearing_algorithms.simple import TradeReductionRole as PayAsClearRole
 from emarketpy.market_objects import MarketConfig, MarketProduct
 from emarketpy.utils import (
     get_available_products,
@@ -93,13 +93,13 @@ accepted, rejected, meta = mr.clear(orderbook, products)
 all_orders = []
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, "horizontal overlap ", show_text=False)
+plot_orderbook(all_orders, meta, "horizontal overlap ")
 
 assert meta[0]["demand_volume"] > 0
 assert meta[0]["price"] > 0
 import pandas as pd
 
-print(pd.DataFrame(mr.all_orders))
+print(pd.DataFrame(all_orders))
 print(pd.DataFrame(accepted))
 print(meta)
 

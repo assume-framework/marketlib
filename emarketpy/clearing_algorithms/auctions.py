@@ -10,39 +10,12 @@ from operator import itemgetter
 
 from ..base_market import MarketRole
 from ..market_objects import MarketConfig, MarketProduct, Orderbook
+from .simple import calculate_meta
 
 log = logging.getLogger(__name__)
 
 
-def calculate_meta(accepted_supply_orders, accepted_demand_orders, product):
-    supply_volume = sum(map(itemgetter("accepted_volume"), accepted_supply_orders))
-    demand_volume = -sum(map(itemgetter("accepted_volume"), accepted_demand_orders))
-    prices = list(map(itemgetter("accepted_price"), (accepted_demand_orders + accepted_supply_orders))) or [0]
-    # can also be self.marketconfig.maximum_bid..?
-    duration_hours = (product[1] - product[0]) / timedelta(hours=1)
-    avg_price = 0
-    if supply_volume:
-        weighted_price = [
-            order["accepted_volume"] * order["accepted_price"]
-            for order in accepted_supply_orders
-        ]
-        avg_price = sum(weighted_price) / supply_volume
-    return {
-        "supply_volume": supply_volume,
-        "demand_volume": demand_volume,
-        "demand_volume_energy": demand_volume * duration_hours,
-        "supply_volume_energy": supply_volume * duration_hours,
-        "price": avg_price,
-        "max_price": max(prices),
-        "min_price": min(prices),
-        "node": None,
-        "product_start": product[0],
-        "product_end": product[1],
-        "only_hours": product[2],
-    }
-
-
-class QuasiUniformPricingRole(MarketRole):
+class McAfeeRole(MarketRole):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 
@@ -163,14 +136,9 @@ class QuasiUniformPricingRole(MarketRole):
             else:
                 clear_price = 0
 
-            accepted_product_orders = self.set_pricing(
-                market_products,
-                accepted_supply_orders,
-                accepted_demand_orders,
-                clear_price,
-                rejected_orders,
-            )
-            
+            accepted_product_orders = accepted_demand_orders + accepted_supply_orders
+            for order in accepted_product_orders:
+                order["accepted_price"] = clear_price
             accepted_orders.extend(accepted_product_orders)
 
             meta.append(
@@ -183,196 +151,6 @@ class QuasiUniformPricingRole(MarketRole):
 
         return accepted_orders, rejected_orders, meta
 
-
-class PayAsClearRole(QuasiUniformPricingRole):
-
-    def set_pricing(
-        self,
-        market_products: list[MarketProduct],
-        accepted_supply_orders: list[dict],
-        accepted_demand_orders: Orderbook,
-        clear_price: float,
-        rejected_orders: Orderbook,
-    ) -> Orderbook:
-        """
-        Sets the pricing for the accepted orders.
-        """
-        accepted_product_orders = accepted_demand_orders + accepted_supply_orders
-        for order in accepted_product_orders:
-            order["accepted_price"] = clear_price
-
-        return accepted_product_orders
-
-
-class AverageMechanismRole(QuasiUniformPricingRole):
-    """
-    Average double auction mechanism
-    * IR
-    * not IC - strategic bidding is helpful
-    """
-
-    def set_pricing(
-        self,
-        market_products: list[MarketProduct],
-        accepted_supply_orders: Orderbook,
-        accepted_demand_orders: Orderbook,
-        clear_price: float,
-        rejected_orders: Orderbook,
-    ) -> Orderbook:
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
-        p = sell_price+buy_price/2
-        for order in (accepted_demand_orders + accepted_supply_orders):
-            order["accepted_price"] = p
-        return accepted_demand_orders + accepted_supply_orders
-
-class TradeReductionRole(QuasiUniformPricingRole):
-    """
-    * IR
-    * IC
-    * not SBB - auctioneer has surplus
-    * not EE - the last trade does not take place
-
-    The last trade does not take place, which makes this mechanism not efficient.
-
-    """
-
-    def set_pricing(
-        self,
-        market_products: list[MarketProduct],
-        accepted_supply_orders: Orderbook,
-        accepted_demand_orders: Orderbook,
-        clear_price: float,
-        rejected_orders: Orderbook,
-    ) -> Orderbook:
-        """
-        Sets the pricing for the accepted orders.
-        """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-
-        # remove last trade
-        accepted_supply_orders.sort(key=lambda x: x["price"])
-        accepted_demand_orders.sort(key=lambda x: x["price"], reverse=True)
-        reduced_supply = accepted_supply_orders.pop(-1)
-        reduced_demand = accepted_demand_orders.pop(-1)
-        if reduced_demand["accepted_volume"] == reduced_supply["accepted_volume"]:
-            rejected_orders.append(reduced_supply)
-            rejected_orders.append(reduced_demand)
-        if reduced_demand["accepted_volume"] > reduced_supply["accepted_volume"]:
-            reduced_demand["accepted_volume"] -= reduced_supply["accepted_volume"]
-            rejected_orders.append(reduced_supply)
-        else:
-            reduced_supply["accepted_volume"] -= reduced_demand["accepted_volume"]
-            rejected_orders.append(reduced_demand)
-        
-        # continue clearing
-        for order in accepted_supply_orders:
-            order["accepted_price"] = sell_price
-
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
-        
-        for order in accepted_demand_orders:
-            order["accepted_price"] = buy_price
-        
-        accepted_product_orders = accepted_demand_orders + accepted_supply_orders
-        return accepted_product_orders
-
-class McAfeeRole(QuasiUniformPricingRole):
-    """
-    * IR - buyer pays less than his value, seller receives more 
-    * IC - truthful bidding is optimal
-    * WBB but not SBB - auctioneer has surplus
-    * not EE - the last trade does not take place if b < p or p < s
-    """
-
-    def set_pricing(
-        self,
-        market_products: list[MarketProduct],
-        accepted_supply_orders: Orderbook,
-        accepted_demand_orders: Orderbook,
-        clear_price: float,
-        rejected_orders: Orderbook,
-    ) -> Orderbook:
-        """
-        Sets the pricing for the accepted orders.
-        """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
-        rejected_supply_orders = [x for x in rejected_orders if x["volume"] > 0]
-        rejected_demand_orders = [x for x in rejected_orders if x["volume"] < 0]
-        next_sell_price = min(map(itemgetter("price"), rejected_supply_orders))
-        next_buy_price = max(map(itemgetter("price"), rejected_demand_orders))
-        
-        p = (next_sell_price+next_buy_price)/2
-
-        if buy_price >= p >= sell_price:
-            sell_price = p
-            buy_price = p
-
-        for order in accepted_supply_orders:
-            order["accepted_price"] = sell_price
-        
-        for order in accepted_demand_orders:
-            order["accepted_price"] = buy_price
-        
-        return accepted_demand_orders + accepted_supply_orders
-
-class VCGAuctionRole(QuasiUniformPricingRole):
-    """
-    Vickrey-Clarke-Groves double auction mechanism
-    * IR - buyer pays less than his value, seller receives more
-    * IC - truthful bidding is optimal
-    * not Balanced Budget - difference has to be paid by the auctioneer
-    * EE - efficient as all trades take place
-
-    """
-
-    def set_pricing(
-        self,
-        market_products: list[MarketProduct],
-        accepted_supply_orders: Orderbook,
-        accepted_demand_orders: Orderbook,
-        clear_price: float,
-        rejected_orders: Orderbook,
-    ) -> Orderbook:
-        """
-        Sets the pricing for the accepted orders.
-        """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
-        rejected_supply_orders = [x for x in rejected_orders if x["volume"] > 0]
-        rejected_demand_orders = [x for x in rejected_orders if x["volume"] < 0]
-        next_sell_price = min(map(itemgetter("price"), rejected_supply_orders))
-        next_buy_price = max(map(itemgetter("price"), rejected_demand_orders))
-
-        if next_sell_price > buy_price:
-            if next_buy_price < sell_price:
-                sell_price, buy_price = buy_price, sell_price
-            else:
-                sell_price = buy_price
-                buy_price = next_buy_price
-        else:
-            if next_buy_price < sell_price:
-                sell_price = next_buy_price
-                buy_price = sell_price
-            else:
-                sell_price = next_sell_price
-                buy_price = next_buy_price
-
-        for order in accepted_supply_orders:
-            order["accepted_price"] = sell_price
-        
-        for order in accepted_demand_orders:
-            order["accepted_price"] = buy_price
-
-        # calculate payment which the auctioneer has to pay
-        total_payment = 0
-        for order in accepted_demand_orders:
-            total_payment += order["accepted_price"] * order["accepted_volume"]
-        for order in accepted_supply_orders:
-            total_payment -= order["accepted_price"] * order["accepted_volume"]
-
-        return accepted_demand_orders + accepted_supply_orders
 
 class PayAsBidRole(MarketRole):
     def __init__(self, marketconfig: MarketConfig):
@@ -447,6 +225,9 @@ class PayAsBidRole(MarketRole):
                 if diff < 0:
                     print("mydiff", diff)
                     # gen < dem
+                    # generation is not enough - split demand
+                    split_demand_order = demand_order.copy()
+                    split_demand_order["accepted_volume"] = diff
                     demand_order["accepted_volume"] = demand_order["volume"] - diff
                 elif diff > 0:
                     # generation left over - split generation
