@@ -14,13 +14,13 @@ from emarketpy.market_objects import Order
 def create_orderbook(order: Order = None, node_ids=[0], count=100, seed=30):
     """
     Creates a list of random orders for testing purposes.
-    
+
     Args:
         order (Order, optional): A base order to use as a template. Defaults to None.
         node_ids (list[int], optional): A list of node IDs to generate orders for. Defaults to [0].
         count (int, optional): The number of orders to generate per node. Defaults to 100.
         seed (int, optional): A seed value for the random number generator. Defaults to 30.
-    
+
     Returns:
         list[Order]: A list of randomly generated orders.
     """
@@ -87,7 +87,6 @@ def extend_orderbook(
             "price": price,
             "only_hours": None,
         }
-
 
         if node is not None:
             order.update({"node": node})

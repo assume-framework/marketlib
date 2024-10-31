@@ -98,10 +98,8 @@ plot_orderbook(all_orders, meta, "horizontal overlap", show_text=False)
 assert meta[0]["demand_volume"] > 0
 assert meta[0]["price"] > 0
 
-import pandas as pd
+import pandas as pd  # noqa: E402
 
 print(pd.DataFrame(all_orders))
 print(pd.DataFrame(accepted))
 print(meta)
-
-

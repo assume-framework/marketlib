@@ -13,16 +13,24 @@ from ..market_objects import MarketConfig, MarketProduct, Orderbook
 
 log = logging.getLogger(__name__)
 
+
 def max_map(column, iterable):
     return max([0, *map(itemgetter(column), iterable)])
 
+
 def min_map(column, iterable):
     return max([0, *map(itemgetter(column), iterable)])
-    
+
+
 def calculate_meta(accepted_supply_orders, accepted_demand_orders, product):
     supply_volume = sum(map(itemgetter("accepted_volume"), accepted_supply_orders))
     demand_volume = -sum(map(itemgetter("accepted_volume"), accepted_demand_orders))
-    prices = list(map(itemgetter("accepted_price"), (accepted_demand_orders + accepted_supply_orders))) or [0]
+    prices = list(
+        map(
+            itemgetter("accepted_price"),
+            (accepted_demand_orders + accepted_supply_orders),
+        )
+    ) or [0]
     # can also be self.marketconfig.maximum_bid..?
     duration_hours = (product[1] - product[0]) / timedelta(hours=1)
     avg_price = 0
@@ -162,9 +170,7 @@ class QuasiUniformPricingRole(MarketRole):
 
             # set clearing price - merit order - uniform pricing
             if accepted_supply_orders:
-                clear_price = float(
-                    max_map("price", accepted_supply_orders)
-                )
+                clear_price = float(max_map("price", accepted_supply_orders))
             else:
                 clear_price = 0
 
@@ -175,7 +181,7 @@ class QuasiUniformPricingRole(MarketRole):
                 clear_price,
                 rejected_orders,
             )
-            
+
             accepted_orders.extend(accepted_product_orders)
 
             meta.append(
@@ -190,7 +196,6 @@ class QuasiUniformPricingRole(MarketRole):
 
 
 class PayAsClearRole(QuasiUniformPricingRole):
-
     def set_pricing(
         self,
         market_products: list[MarketProduct],
@@ -226,10 +231,11 @@ class AverageMechanismRole(QuasiUniformPricingRole):
     ) -> Orderbook:
         sell_price = max_map("price", accepted_supply_orders)
         buy_price = min_map("price", accepted_demand_orders)
-        p = sell_price+buy_price/2
-        for order in (accepted_demand_orders + accepted_supply_orders):
+        p = sell_price + buy_price / 2
+        for order in accepted_demand_orders + accepted_supply_orders:
             order["accepted_price"] = p
         return accepted_demand_orders + accepted_supply_orders
+
 
 class TradeReductionRole(QuasiUniformPricingRole):
     """
@@ -269,22 +275,23 @@ class TradeReductionRole(QuasiUniformPricingRole):
         else:
             reduced_supply["accepted_volume"] -= reduced_demand["accepted_volume"]
             rejected_orders.append(reduced_demand)
-        
+
         # continue clearing
         for order in accepted_supply_orders:
             order["accepted_price"] = sell_price
 
         buy_price = min_map("price", accepted_demand_orders)
-        
+
         for order in accepted_demand_orders:
             order["accepted_price"] = buy_price
-        
+
         accepted_product_orders = accepted_demand_orders + accepted_supply_orders
         return accepted_product_orders
 
+
 class McAfeeRole(QuasiUniformPricingRole):
     """
-    * IR - buyer pays less than his value, seller receives more 
+    * IR - buyer pays less than his value, seller receives more
     * IC - truthful bidding is optimal
     * WBB but not SBB - auctioneer has surplus
     * not EE - the last trade does not take place if b < p or p < s
@@ -307,8 +314,8 @@ class McAfeeRole(QuasiUniformPricingRole):
         rejected_demand_orders = [x for x in rejected_orders if x["volume"] < 0]
         next_sell_price = min_map("price", rejected_supply_orders)
         next_buy_price = max_map("price", rejected_demand_orders)
-        
-        p = (next_sell_price+next_buy_price)/2
+
+        p = (next_sell_price + next_buy_price) / 2
 
         if buy_price >= p >= sell_price:
             sell_price = p
@@ -316,11 +323,12 @@ class McAfeeRole(QuasiUniformPricingRole):
 
         for order in accepted_supply_orders:
             order["accepted_price"] = sell_price
-        
+
         for order in accepted_demand_orders:
             order["accepted_price"] = buy_price
-        
+
         return accepted_demand_orders + accepted_supply_orders
+
 
 class VCGAuctionRole(QuasiUniformPricingRole):
     """
@@ -366,7 +374,7 @@ class VCGAuctionRole(QuasiUniformPricingRole):
 
         for order in accepted_supply_orders:
             order["accepted_price"] = sell_price
-        
+
         for order in accepted_demand_orders:
             order["accepted_price"] = buy_price
 
@@ -378,6 +386,7 @@ class VCGAuctionRole(QuasiUniformPricingRole):
             total_payment -= order["accepted_price"] * order["accepted_volume"]
 
         return accepted_demand_orders + accepted_supply_orders
+
 
 class PayAsBidRole(MarketRole):
     def __init__(self, marketconfig: MarketConfig):

@@ -91,7 +91,9 @@ def get_available_products(market_products: list[MarketProduct], startdate: date
     return options
 
 
-def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", show_text: bool=True):
+def plot_orderbook(
+    orderbook: Orderbook, results: list[dict], title: str = "", show_text: bool = True
+):
     """
     Plot the merit order of bids for each node in a separate subplot.
 
@@ -105,10 +107,9 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", sho
 
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
-    #orderbook = all_orders
-    #results = meta
+    # orderbook = all_orders
+    # results = meta
 
-    bids = defaultdict(list)
     orderbook.sort(key=itemgetter("node"))
     nodes = set(o["node"] for o in orderbook)
     number_of_nodes = len(nodes)
@@ -169,7 +170,9 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", sho
             if "accepted_volume" in bid.keys():
                 acc_quantity = -bid["accepted_volume"]
                 ax[i].plot(
-                    [cum_demand_bids, cum_demand_bids + acc_quantity], [price, price], "r-"
+                    [cum_demand_bids, cum_demand_bids + acc_quantity],
+                    [price, price],
+                    "r-",
                 )
 
             cum_demand_bids += quantity
@@ -185,7 +188,6 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", sho
                         [price, demand_bids[n + 1]["price"]],
                         "r-",
                     )
-
 
         # plot the market clearing price and quantity
         if len(results) == i:
@@ -217,7 +219,9 @@ def plot_orderbook(orderbook: Orderbook, results: list[dict], title: str="", sho
                 f"Accepted demand: {contracted_demand:.1f}",
                 transform=ax[i].transAxes,
             )
-            ax[i].text(0.05, -0.6, f"Total Export: {inflow:.1f}", transform=ax[i].transAxes)
+            ax[i].text(
+                0.05, -0.6, f"Total Export: {inflow:.1f}", transform=ax[i].transAxes
+            )
         ax[i].set_title(title if title else f"Node {str(i)}")
         ax[i].set_xlabel("Quantity")
         ax[i].set_ylabel("Price")

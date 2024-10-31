@@ -4,7 +4,6 @@
 
 import logging
 import random
-from datetime import timedelta
 from itertools import groupby
 from operator import itemgetter
 

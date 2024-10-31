@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Florian Maurer
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # emarketpy
 
 A Python library for simulating electricity markets and market mechanisms.
@@ -9,7 +15,7 @@ A Python library for simulating electricity markets and market mechanisms.
   - Pay-as-clear (uniform pricing)
   - Pay-as-bid
   - Average mechanism
-  - Trade reduction mechanism 
+  - Trade reduction mechanism
   - McAfee mechanism
   - VCG auction mechanism
 - Support for:
@@ -45,7 +51,7 @@ A Python library for simulating electricity markets and market mechanisms.
 - Not efficient when price conditions not met
 
 ### VCG Auction
-- Incentive compatible and individually rational 
+- Incentive compatible and individually rational
 - Efficient but not budget balanced
 - Auctioneer must subsidize difference
 

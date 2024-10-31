@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Florian Maurer
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 import unittest
 
 from emarketpy.market_objects import OnlyHours
@@ -25,5 +29,6 @@ class TestOnlyHours(unittest.TestCase):
         hours = OnlyHours(11, 19)
         self.assertEqual(repr(hours), "OnlyHours(begin_hour=11, end_hour=19)")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
