@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: Florian Maurer
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  jupyter:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: '**/pyproject.toml'
+    - name: Check reuse compliance
+      run: |
+        pip install reuse
+        reuse lint
+    - name: Install dependencies
+      run: |
+        pip install -e .
+    - name: Lint with ruff
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        pip install ruff
+        ruff check .
+        ruff format .
+    - name: Test with pytest & integration tests
+      run: |
+        pytest
+    - name: Upload tests results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          coverage.xml
+          result.xml
