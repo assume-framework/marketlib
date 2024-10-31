@@ -13,7 +13,12 @@ from ..market_objects import MarketConfig, MarketProduct, Orderbook
 
 log = logging.getLogger(__name__)
 
+def max_map(column, iterable):
+    return max([0, *map(itemgetter(column), iterable)])
 
+def min_map(column, iterable):
+    return max([0, *map(itemgetter(column), iterable)])
+    
 def calculate_meta(accepted_supply_orders, accepted_demand_orders, product):
     supply_volume = sum(map(itemgetter("accepted_volume"), accepted_supply_orders))
     demand_volume = -sum(map(itemgetter("accepted_volume"), accepted_demand_orders))
@@ -158,7 +163,7 @@ class QuasiUniformPricingRole(MarketRole):
             # set clearing price - merit order - uniform pricing
             if accepted_supply_orders:
                 clear_price = float(
-                    max(map(itemgetter("price"), accepted_supply_orders))
+                    max_map("price", accepted_supply_orders)
                 )
             else:
                 clear_price = 0
@@ -219,8 +224,8 @@ class AverageMechanismRole(QuasiUniformPricingRole):
         clear_price: float,
         rejected_orders: Orderbook,
     ) -> Orderbook:
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
+        sell_price = max_map("price", accepted_supply_orders)
+        buy_price = min_map("price", accepted_demand_orders)
         p = sell_price+buy_price/2
         for order in (accepted_demand_orders + accepted_supply_orders):
             order["accepted_price"] = p
@@ -248,7 +253,7 @@ class TradeReductionRole(QuasiUniformPricingRole):
         """
         Sets the pricing for the accepted orders.
         """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
+        sell_price = max_map("price", accepted_supply_orders)
 
         # remove last trade
         accepted_supply_orders.sort(key=lambda x: x["price"])
@@ -269,7 +274,7 @@ class TradeReductionRole(QuasiUniformPricingRole):
         for order in accepted_supply_orders:
             order["accepted_price"] = sell_price
 
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
+        buy_price = min_map("price", accepted_demand_orders)
         
         for order in accepted_demand_orders:
             order["accepted_price"] = buy_price
@@ -296,12 +301,12 @@ class McAfeeRole(QuasiUniformPricingRole):
         """
         Sets the pricing for the accepted orders.
         """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
+        sell_price = max_map("price", accepted_supply_orders)
+        buy_price = min_map("price", accepted_demand_orders)
         rejected_supply_orders = [x for x in rejected_orders if x["volume"] > 0]
         rejected_demand_orders = [x for x in rejected_orders if x["volume"] < 0]
-        next_sell_price = min(map(itemgetter("price"), rejected_supply_orders))
-        next_buy_price = max(map(itemgetter("price"), rejected_demand_orders))
+        next_sell_price = min_map("price", rejected_supply_orders)
+        next_buy_price = max_map("price", rejected_demand_orders)
         
         p = (next_sell_price+next_buy_price)/2
 
@@ -338,12 +343,12 @@ class VCGAuctionRole(QuasiUniformPricingRole):
         """
         Sets the pricing for the accepted orders.
         """
-        sell_price = max(map(itemgetter("price"), accepted_supply_orders))
-        buy_price = min(map(itemgetter("price"), accepted_demand_orders))
+        sell_price = max_map("price", accepted_supply_orders)
+        buy_price = min_map("price", accepted_demand_orders)
         rejected_supply_orders = [x for x in rejected_orders if x["volume"] > 0]
         rejected_demand_orders = [x for x in rejected_orders if x["volume"] < 0]
-        next_sell_price = min(map(itemgetter("price"), rejected_supply_orders))
-        next_buy_price = max(map(itemgetter("price"), rejected_demand_orders))
+        next_sell_price = min_map("price", rejected_supply_orders)
+        next_buy_price = max_map("price", rejected_demand_orders)
 
         if next_sell_price > buy_price:
             if next_buy_price < sell_price:

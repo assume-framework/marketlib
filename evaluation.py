@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from dateutil import rrule as rr
 from dateutil.relativedelta import relativedelta as rd
 
-from emarketpy.clearing_algorithms.simple import TradeReductionRole as PayAsClearRole
+from emarketpy.clearing_algorithms.simple import PayAsClearRole
 from emarketpy.market_objects import MarketConfig, MarketProduct
 from emarketpy.utils import (
     get_available_products,
@@ -69,7 +69,7 @@ plot_orderbook(all_orders, meta, "intersection demand change", show_text=False)
 orderbook = extend_orderbook(products, -100, 100)
 orderbook = extend_orderbook(products, -100, 10, orderbook)
 orderbook = extend_orderbook(products, 50, 50, orderbook)
-orderbook = extend_orderbook(products, 150, 120, orderbook)
+orderbook = extend_orderbook(products, 150, 80, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta = mr.clear(orderbook, products)
@@ -93,10 +93,11 @@ accepted, rejected, meta = mr.clear(orderbook, products)
 all_orders = []
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, "horizontal overlap ")
+plot_orderbook(all_orders, meta, "horizontal overlap", show_text=False)
 
 assert meta[0]["demand_volume"] > 0
 assert meta[0]["price"] > 0
+
 import pandas as pd
 
 print(pd.DataFrame(all_orders))
