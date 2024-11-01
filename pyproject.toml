@@ -35,6 +35,7 @@ dependencies = [
     "numpy >=1.26.4",
     "python-dateutil >=2.8.2",
     "pandas >=2.0.0",
+    "pyyaml >=6.0.2",
 ]
 
 [project.optional-dependencies]
