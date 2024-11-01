@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "emarketpy"
-version = "0.0.0"
+version = "0.0.1"
 description = "Energy market toolbox"
 authors = [{ name = "Florian Maurer", email = "maurer@fh-aachen.de"}]
 license = {text = "AGPL-3.0-or-later"}
@@ -35,6 +35,7 @@ dependencies = [
     "numpy >=1.26.4",
     "python-dateutil >=2.8.2",
     "pandas >=2.0.0",
+    "pyyaml >=6.0.2",
 ]
 
 [project.optional-dependencies]
@@ -45,7 +46,6 @@ test = [
     "pytest >=7.2.2",
     "pytest-cov >=4.1.0",
     "pytest-asyncio >=0.21.1",
-    "glpk >=0.4.7",
 ]
 
 [project.urls]
