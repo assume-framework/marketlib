@@ -113,7 +113,7 @@ class PayAsClearAonRole(MarketRole):
                 )
             )
         # accepted orders can not be used in future
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
 
 # does not allow to have partial accepted bids
@@ -194,4 +194,4 @@ class PayAsBidAonRole(MarketRole):
                     product,
                 )
             )
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}

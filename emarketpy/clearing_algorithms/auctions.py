@@ -148,7 +148,7 @@ class McAfeeRole(MarketRole):
                 )
             )
 
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
 
 class PayAsBidRole(MarketRole):
@@ -275,4 +275,4 @@ class PayAsBidRole(MarketRole):
                     product,
                 )
             )
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}

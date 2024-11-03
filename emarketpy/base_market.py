@@ -143,9 +143,9 @@ class MarketMechanism:
             market_products (list[MarketProduct]): The products to be traded.
 
         Returns:
-            (Orderbook, Orderbook, list[dict]): The empty accepted orderbook, the empty rejected orderbook and the empty market metadata.
+            (Orderbook, Orderbook, list[dict], dict[tuple, float]): The empty accepted orderbook, the empty rejected orderbook and the empty market metadata and the flows between market zones.
         """
-        return [], [], []
+        return [], [], [], {}
 
 
 class MarketRole(MarketMechanism, Role):

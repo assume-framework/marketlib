@@ -510,7 +510,7 @@ class ComplexClearingRole(MarketRole):
 
         self.all_orders = []
 
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
 
 def calculate_order_surplus(
@@ -701,4 +701,4 @@ def extract_results(
                 }
             )
 
-    return accepted_orders, rejected_orders, meta
+    return accepted_orders, rejected_orders, meta, {}

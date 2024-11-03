@@ -173,7 +173,7 @@ class NodalMarketRole(MarketRole):
                 calculate_network_meta(network=nodal_network, product=product, i=i)
             )
 
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
     def process_dispatch_data(self, network: pypsa.Network, orderbook_df: pd.DataFrame):
         """

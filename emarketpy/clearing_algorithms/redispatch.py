@@ -215,7 +215,7 @@ class RedispatchMarketRole(MarketRole):
                 calculate_network_meta(network=redispatch_network, product=product, i=i)
             )
 
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
     def process_dispatch_data(self, network: pypsa.Network, orderbook_df: pd.DataFrame):
         """

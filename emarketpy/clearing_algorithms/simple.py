@@ -192,7 +192,7 @@ class QuasiUniformPricingRole(MarketRole):
                 )
             )
 
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
 
 class PayAsClearRole(QuasiUniformPricingRole):
@@ -509,4 +509,4 @@ class PayAsBidRole(MarketRole):
                     product,
                 )
             )
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}

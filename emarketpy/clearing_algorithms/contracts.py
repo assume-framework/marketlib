@@ -264,7 +264,7 @@ class PayAsBidContractRole(MarketRole):
                 )
 
         # contract clearing (pay_as_bid) takes place
-        return accepted_orders, rejected_orders, meta
+        return accepted_orders, rejected_orders, meta, {}
 
     async def execute_contract(self, contract: Order):
         """
