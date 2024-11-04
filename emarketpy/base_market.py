@@ -47,7 +47,7 @@ class MarketMechanism:
     """
 
     def __init__(self, marketconfig: MarketConfig):
-        super().__init__(marketconfig)
+        super().__init__()
         self.marketconfig = marketconfig
 
     def clear(
@@ -274,7 +274,6 @@ class MarketRole(MarketMechanism, Role):
             )
         else:
             logger.debug("market %s - does not reopen", self.marketconfig.market_id)
-
 
     def validate_registration(
         self, content: RegistrationMessage, meta: MetaDict

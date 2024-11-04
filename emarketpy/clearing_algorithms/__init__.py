@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 from ..market_objects import Orderbook
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 
 from .all_or_nothing import PayAsBidAonRole, PayAsClearAonRole
 from .contracts import PayAsBidContractRole
 from .simple import PayAsBidRole, PayAsClearRole
 
-clearing_mechanisms: dict[str, MarketRole] = {
+clearing_mechanisms: dict[str, MarketMechanism] = {
     "pay_as_clear": PayAsClearRole,
     "pay_as_bid": PayAsBidRole,
     "pay_as_bid_aon": PayAsBidAonRole,

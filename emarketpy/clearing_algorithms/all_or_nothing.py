@@ -6,7 +6,7 @@ import logging
 from itertools import groupby
 from operator import itemgetter
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..market_objects import MarketConfig, MarketProduct, Orderbook
 from .simple import calculate_meta
 
@@ -32,7 +32,7 @@ def cumsum(orderbook: Orderbook):
 
 # does not allow to have partially accepted bids
 # all or nothing
-class PayAsClearAonRole(MarketRole):
+class PayAsClearAonRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 
@@ -117,7 +117,7 @@ class PayAsClearAonRole(MarketRole):
 
 
 # does not allow to have partial accepted bids
-class PayAsBidAonRole(MarketRole):
+class PayAsBidAonRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 

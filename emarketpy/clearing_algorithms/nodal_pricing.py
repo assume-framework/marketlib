@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pypsa
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..grid_utils import (
     add_backup_generators,
     add_generators,
@@ -25,7 +25,7 @@ logging.getLogger("linopy").setLevel(logging.WARNING)
 logging.getLogger("pypsa").setLevel(logging.WARNING)
 
 
-class NodalMarketRole(MarketRole):
+class NodalRole(MarketMechanism):
     """
 
     A market role that performs market clearing at each node (bus) in an electricity network.

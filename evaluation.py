@@ -43,7 +43,7 @@ orderbook = extend_orderbook(products, 100, 70, orderbook)
 orderbook = extend_orderbook(products, 100, 80, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
-accepted, rejected, meta = mr.clear(orderbook, products)
+accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
 all_orders = []
 all_orders.extend(accepted)
@@ -57,7 +57,7 @@ orderbook = extend_orderbook(products, 80, 120, orderbook)
 orderbook = extend_orderbook(products, 120, 80, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
-accepted, rejected, meta = mr.clear(orderbook, products)
+accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
 all_orders = []
 all_orders.extend(accepted)
@@ -72,7 +72,7 @@ orderbook = extend_orderbook(products, 50, 50, orderbook)
 orderbook = extend_orderbook(products, 150, 80, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
-accepted, rejected, meta = mr.clear(orderbook, products)
+accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
 all_orders = []
 all_orders.extend(accepted)
@@ -88,7 +88,7 @@ orderbook = extend_orderbook(products, 100, 50, orderbook)
 orderbook = extend_orderbook(products, 100, 100, orderbook)
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
-accepted, rejected, meta = mr.clear(orderbook, products)
+accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
 all_orders = []
 all_orders.extend(accepted)

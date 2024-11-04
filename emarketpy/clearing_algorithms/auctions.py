@@ -7,14 +7,14 @@ import random
 from itertools import groupby
 from operator import itemgetter
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..market_objects import MarketConfig, MarketProduct, Orderbook
 from .simple import calculate_meta
 
 log = logging.getLogger(__name__)
 
 
-class McAfeeRole(MarketRole):
+class McAfeeRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 
@@ -151,7 +151,7 @@ class McAfeeRole(MarketRole):
         return accepted_orders, rejected_orders, meta, {}
 
 
-class PayAsBidRole(MarketRole):
+class PayAsBidRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 

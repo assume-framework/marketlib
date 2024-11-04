@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pypsa
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..grid_utils import (
     add_redispatch_generators,
     add_redispatch_loads,
@@ -24,7 +24,7 @@ logging.getLogger("linopy").setLevel(logging.WARNING)
 logging.getLogger("pypsa").setLevel(logging.WARNING)
 
 
-class RedispatchMarketRole(MarketRole):
+class RedispatchRole(MarketMechanism):
     """
     A market role that performs redispatch to resolve congestion in the electricity market.
     It uses PyPSA to model the electricity network and perform the redispatch.

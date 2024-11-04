@@ -11,7 +11,7 @@ import pandas as pd
 import pyomo.environ as pyo
 from pyomo.opt import SolverFactory, TerminationCondition, check_available_solvers
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..market_objects import MarketConfig, MarketProduct, Orderbook
 from ..utils import (
     create_nodal_incidence_matrix,
@@ -275,7 +275,7 @@ def market_clearing_opt(
     return instance, results
 
 
-class ComplexClearingRole(MarketRole):
+class ComplexClearingRole(MarketMechanism):
     """
     Defines the clearing algorithm for the complex market.
 

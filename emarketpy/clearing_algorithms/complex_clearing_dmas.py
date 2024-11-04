@@ -22,7 +22,7 @@ from pyomo.environ import (
 from pyomo.environ import value as get_real_number
 from pyomo.opt import SolverFactory, check_available_solvers
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..market_objects import MarketConfig, MarketProduct, Order, Orderbook
 
 log = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ SOLVERS = ["glpk", "cbc", "gurobi", "cplex"]
 order_types = ["single_ask", "single_bid", "linked_ask", "exclusive_ask"]
 
 
-class ComplexDmasClearingRole(MarketRole):
+class ComplexDmasClearingRole(MarketMechanism):
     required_fields = ["link", "block_id", "exclusive_id"]
 
     def __init__(self, marketconfig: MarketConfig, verbose: bool = False):

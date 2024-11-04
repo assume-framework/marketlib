@@ -8,7 +8,7 @@ from datetime import timedelta
 from itertools import groupby
 from operator import itemgetter
 
-from ..base_market import MarketRole
+from ..base_market import MarketMechanism
 from ..market_objects import MarketConfig, MarketProduct, Orderbook
 
 log = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ def calculate_meta(accepted_supply_orders, accepted_demand_orders, product):
     }
 
 
-class QuasiUniformPricingRole(MarketRole):
+class QuasiUniformPricingRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 
@@ -388,7 +388,7 @@ class VCGAuctionRole(QuasiUniformPricingRole):
         return accepted_demand_orders + accepted_supply_orders
 
 
-class PayAsBidRole(MarketRole):
+class PayAsBidRole(MarketMechanism):
     def __init__(self, marketconfig: MarketConfig):
         super().__init__(marketconfig)
 
