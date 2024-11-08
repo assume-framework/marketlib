@@ -142,6 +142,7 @@ class MarketConfig:
     param_dict: dict = field(default_factory=dict)
     addr: any = None
 
+
 class OpeningMessage(TypedDict):
     """
     Message which is sent from the market to participating agent to open a market.
