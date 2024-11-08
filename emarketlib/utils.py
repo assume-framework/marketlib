@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from emarketpy.market_objects import MarketProduct, Orderbook
+from emarketlib.market_objects import MarketProduct, Orderbook
 
 logger = logging.getLogger(__name__)
 

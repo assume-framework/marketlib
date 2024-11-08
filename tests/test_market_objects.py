@@ -4,7 +4,7 @@
 
 import unittest
 
-from emarketpy.market_objects import OnlyHours
+from emarketlib.market_objects import OnlyHours
 
 
 class TestOnlyHours(unittest.TestCase):

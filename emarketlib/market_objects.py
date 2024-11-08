@@ -119,8 +119,7 @@ class MarketConfig:
         supports_get_unmatched (bool): whether the market supports get unmatched
         eligible_obligations_lambda (eligible_lambda): lambda function which determines if an agent is eligible to trade this product
         param_dict (dict): dict which can have additional params for the used clearing_mechanism
-        addr (str): the address of the market
-        aid (str): automatic id of the market
+        addr (any): the address of the market
     """
 
     market_id: str = "market"
@@ -141,9 +140,7 @@ class MarketConfig:
     supports_get_unmatched: bool = False
     eligible_obligations_lambda: eligible_lambda = lambda x: True
     param_dict: dict = field(default_factory=dict)
-    addr: str = " "
-    aid: str = " "
-
+    addr: any = None
 
 class OpeningMessage(TypedDict):
     """

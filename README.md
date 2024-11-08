@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: Florian Maurer
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# emarketpy
+# emarketlib
 
 A Python library for simulating electricity markets and market mechanisms.
 
@@ -58,8 +58,8 @@ A Python library for simulating electricity markets and market mechanisms.
 ## Usage
 
 ```python
-from emarketpy import MarketConfig
-from emarketpy.clearing_algorithms.simple import PayAsClearRole
+from emarketlib import MarketConfig
+from emarketlib.clearing_algorithms.simple import PayAsClearRole
 
 # Create market config
 config = MarketConfig(
@@ -75,4 +75,4 @@ market = PayAsClearRole(config)
 ## Installation
 
 
-`pip install emarketpy`
+`pip install emarketlib`

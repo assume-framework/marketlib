@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 from dateutil import rrule as rr
 from dateutil.relativedelta import relativedelta as rd
 
-from emarketpy.clearing_algorithms.simple import PayAsClearRole
-from emarketpy.market_objects import MarketConfig, MarketProduct
-from emarketpy.utils import (
+from emarketlib.clearing_algorithms.simple import PayAsClearRole
+from emarketlib.market_objects import MarketConfig, MarketProduct
+from emarketlib.utils import (
     get_available_products,
     plot_orderbook,
 )

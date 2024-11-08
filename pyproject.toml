@@ -7,7 +7,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "emarketpy"
+name = "emarketlib"
 version = "0.0.1"
 description = "Energy market toolbox"
 authors = [{ name = "Florian Maurer", email = "maurer@fh-aachen.de"}]
@@ -49,12 +49,12 @@ test = [
 ]
 
 [project.urls]
-homepage = "https://github.com/maurerle/emarketpy"
-repository = "https://github.com/maurerle/emarketpy"
+homepage = "https://github.com/maurerle/emarketlib"
+repository = "https://github.com/maurerle/emarketlib"
 
 
 [tool.setuptools]
-packages = ["emarketpy"]
+packages = ["emarketlib"]
 
 [tool.ruff]
 
