@@ -104,7 +104,7 @@ epex_intraday_trading_config = MarketConfig(
         MarketProduct(rd(hours=+1), dynamic_end, rd(minutes=30)),
     ],
     eligible_obligations_lambda=lambda agent, market: agent.aid in market.participants
-    and agent.payed > 10000,  # per year + 25k once
+    and agent.paid > 10000,  # per year + 25k once
     market_mechanism="pay_as_bid",  # TODO remove orders from same agent when setting for same product
     volume_unit="MWh",
     volume_tick=0.1,
@@ -161,7 +161,7 @@ eex_future_trading_config = MarketConfig(
     price_unit="€/MWh",  # cost is given in €/MWh - total product cost results in price*amount/(duration in hours)
     price_tick=0.01,
     eligible_obligations_lambda=lambda agent, market: agent.aid in market.participants
-    and agent.payed > 22000,  # per year
+    and agent.paid > 22000,  # per year
     market_mechanism="pay_as_bid",
 )
 

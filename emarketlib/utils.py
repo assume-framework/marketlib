@@ -441,13 +441,13 @@ def separate_orders(orderbook: Orderbook):
 
 def get_products_index(orderbook: Orderbook) -> pd.DatetimeIndex:
     """
-    Creates an index containing all start times of orders in orderbook and all inbetween.
+    Creates an index containing all start times of orders in orderbook and all between.
 
     Args:
         orderbook (Orderbook): The orderbook.
 
     Returns:
-        pd.DatetimeIndex: The index containing all start times of orders in orderbook and all inbetween.
+        pd.DatetimeIndex: The index containing all start times of orders in orderbook and all between.
     """
     if orderbook == []:
         return []
@@ -587,7 +587,7 @@ def rename_study_case(path: str, old_key: str, new_key: str):
 
     Args:
         path (str): The path to the config file.
-        old_key (str): The orginal name of the key without adjustments. E.g. study_case from available_examples: "base".
+        old_key (str): The original name of the key without adjustments. E.g. study_case from available_examples: "base".
         new_key (str): The name of the key with adjustments. E.g. added run number: "base_run_1".
     """
     # Read the YAML file

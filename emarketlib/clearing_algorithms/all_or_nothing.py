@@ -164,7 +164,7 @@ class PayAsBidAonRole(MarketMechanism):
                         supply_orders[i]["accepted_volume"] = supply_orders[i]["volume"]
                         demand_orders[i]["accepted_volume"] = demand_orders[i]["volume"]
 
-                        # pay as bid - so the generator gets payed what he needed to produce
+                        # pay as bid - so the generator gets paid what he needed to produce
                         supply_orders[i]["accepted_price"] = supply_orders[i]["price"]
                         demand_orders[i]["accepted_price"] = supply_orders[i]["price"]
 

@@ -67,7 +67,7 @@ policy_trading_config = MarketConfig(
 
 # eligible_lambda is a lambda to check if an agent is eligible to receive a policy (must have solar...)
 # Control Reserve market
-# regelleistung kann 7 Tage lang geboten werden (überschneidende Gebots-Zeiträume)?
+# control reserve can be bid for 7 days (überschneidende Gebots-Zeiträume)?
 # FCR
 market_start = today - timedelta(days=7) + timedelta(hours=10)
 control_reserve_trading_config = MarketConfig(
@@ -179,10 +179,10 @@ miso_real_time_config = MarketConfig(
 
 # LMP Markt:
 # https://www.e-education.psu.edu/eme801/node/498
-# Alle Contraints und marginal Costs werden gesammelt
+# All Constraints and marginal Costs are collected in the LMP market
 # Markt dispatched kosten an Demand nach Stability constrained Merit-Order
-# Teilnehmer werden nur mit Marginal Costs bezahlt
-# differenz ist congestion revenue -> behält TSO ein?
+# participants are paid only the marginal cost
+# difference is congestion revenue -> is kept by TSO?
 
 # All operating facilities in the U.S. devote the first portion of their revenues to the maintenance and operations of the priced lanes.
 # The traffic monitoring, tolling, enforcement, incident management, administration, and routine maintenance costs can be significant,
@@ -195,7 +195,7 @@ miso_real_time_config = MarketConfig(
 
 ### Auswertung Index - Benchmark
 # ID3
-# https://www.eex.com/fileadmin/EEX/Downloads/Trading/Specifications/Indeces/DE/20200131-indexbeschreibung-v009b-d-final-track-changes-data.pdf
+# https://www.eex.com/fileadmin/EEX/Downloads/Trading/Specifications/Indices/DE/20200131-indexbeschreibung-v009b-d-final-track-changes-data.pdf
 # https://www.epexspot.com/en/indices#auction-price-indices
 
 
