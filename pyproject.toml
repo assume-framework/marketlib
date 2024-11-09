@@ -49,8 +49,8 @@ test = [
 ]
 
 [project.urls]
-homepage = "https://github.com/maurerle/emarketlib"
-repository = "https://github.com/maurerle/emarketlib"
+homepage = "https://github.com/assume-framework/emarketlib"
+repository = "https://github.com/assume-framework/emarketlib"
 
 
 [tool.setuptools]
