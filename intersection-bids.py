@@ -4,6 +4,7 @@
 
 from datetime import datetime, timedelta
 
+import matplotlib.pyplot as plt
 from dateutil import rrule as rr
 from dateutil.relativedelta import relativedelta as rd
 
@@ -37,69 +38,63 @@ products = get_available_products(
 )
 
 # vertical down
-orderbook = extend_orderbook(products, -100, 100)
-orderbook = extend_orderbook(products, -100, 50, orderbook)
-orderbook = extend_orderbook(products, 100, 70, orderbook)
-orderbook = extend_orderbook(products, 100, 80, orderbook)
+orderbook = extend_orderbook(products, -100, 100, node="1")
+orderbook = extend_orderbook(products, -100, 50, orderbook, node="1")
+orderbook = extend_orderbook(products, 100, 70, orderbook, node="1")
+orderbook = extend_orderbook(products, 100, 80, orderbook, node="1")
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
 all_orders = []
+metas = []
+metas.extend(meta)
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, ["vertical overlap"], show_text=False)
+
+
+#plot_orderbook(all_orders, meta, "vertical overlap", show_text=False)
 
 ### intersect demand change
-orderbook = extend_orderbook(products, -100, 100)
-orderbook = extend_orderbook(products, -100, 10, orderbook)
-orderbook = extend_orderbook(products, 80, 120, orderbook)
-orderbook = extend_orderbook(products, 120, 80, orderbook)
+orderbook = extend_orderbook(products, -100, 100, node="2")
+orderbook = extend_orderbook(products, -100, 10, orderbook, node="2")
+orderbook = extend_orderbook(products, 80, 120, orderbook, node="2")
+orderbook = extend_orderbook(products, 120, 80, orderbook, node="2")
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
-all_orders = []
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, ["intersection demand change"], show_text=False)
-
+metas.extend(meta)
 
 ### intersect supply change
-orderbook = extend_orderbook(products, -100, 100)
-orderbook = extend_orderbook(products, -100, 10, orderbook)
-orderbook = extend_orderbook(products, 50, 50, orderbook)
-orderbook = extend_orderbook(products, 150, 80, orderbook)
+orderbook = extend_orderbook(products, -100, 100, node="3")
+orderbook = extend_orderbook(products, -100, 10, orderbook, node="3")
+orderbook = extend_orderbook(products, 50, 50, orderbook, node="3")
+orderbook = extend_orderbook(products, 150, 80, orderbook, node="3")
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
-all_orders = []
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, ["intersection supply change"], show_text=False)
+metas.extend(meta)
 
 ### intersect more expensive price
-orderbook = extend_orderbook(products, -100, 100)
-orderbook = extend_orderbook(products, -90, 50, orderbook)
-orderbook = extend_orderbook(products, -100, 3, orderbook)
-orderbook = extend_orderbook(products, 100, 3, orderbook)
-orderbook = extend_orderbook(products, 100, 50, orderbook)
-orderbook = extend_orderbook(products, 100, 100, orderbook)
+orderbook = extend_orderbook(products, -100, 100, node="4")
+orderbook = extend_orderbook(products, -90, 50, orderbook, node="4")
+orderbook = extend_orderbook(products, -100, 3, orderbook, node="4")
+orderbook = extend_orderbook(products, 100, 3, orderbook, node="4")
+orderbook = extend_orderbook(products, 100, 50, orderbook, node="4")
+orderbook = extend_orderbook(products, 100, 100, orderbook, node="4")
 
 mr = PayAsClearRole(simple_dayahead_auction_config)
 accepted, rejected, meta, _ = mr.clear(orderbook, products)
 
-all_orders = []
 all_orders.extend(accepted)
 all_orders.extend(rejected)
-plot_orderbook(all_orders, meta, ["horizontal overlap"], show_text=False)
+metas.extend(meta)
+plot_orderbook(all_orders, metas, ["vertical overlap", "intersection demand change","intersection supply change", "horizontal overlap"], show_text=False, rowcount=2, figsize=(8,6))
 
-assert meta[0]["demand_volume"] > 0
-assert meta[0]["price"] > 0
-
-import pandas as pd  # noqa: E402
-
-print(pd.DataFrame(all_orders))
-print(pd.DataFrame(accepted))
-print(meta)
+plt.savefig("intersection-bids.svg")

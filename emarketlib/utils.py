@@ -95,7 +95,9 @@ def get_available_products(market_products: list[MarketProduct], startdate: date
 
 
 def plot_orderbook(
-    orderbook: Orderbook, results: list[dict], title: str = "", show_text: bool = True
+    orderbook: Orderbook, results: list[dict], title: str = [], show_text: bool = True,
+    rowcount: int = 1,
+    figsize: tuple = None,
 ):
     """
     Plot the merit order of bids for each node in a separate subplot.
@@ -115,11 +117,13 @@ def plot_orderbook(
 
     orderbook.sort(key=itemgetter("node"))
     nodes = set(o["node"] for o in orderbook)
-    number_of_nodes = len(nodes)
+    number_of_nodes = len(nodes)//rowcount
 
-    fig, ax = plt.subplots(1, number_of_nodes, sharey=True)
+    fig, ax = plt.subplots(rowcount, number_of_nodes, sharey=True, figsize=figsize)
     if number_of_nodes == 1:
         ax = [ax]
+    if rowcount > 1:
+        ax = ax.flatten()
 
     # split the bids into buy and sell bids for each node separately
     i = 0
@@ -225,7 +229,7 @@ def plot_orderbook(
             ax[i].text(
                 0.05, -0.6, f"Total Export: {inflow:.1f}", transform=ax[i].transAxes
             )
-        ax[i].set_title(title if title else f"Node {str(i)}")
+        ax[i].set_title(title[i] if title else f"Node {str(i)}")
         ax[i].set_xlabel("Quantity")
         ax[i].set_ylabel("Price")
 
@@ -245,7 +249,7 @@ def plot_orderbook(
         ax[i].set_xlim(0, max(cum_supply_bids, cum_demand_bids))
         ax[i].set_ylim(bottom=0)
         i += 1
-    plt.subplots_adjust(wspace=0.3)
+    plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
     return fig, ax
 
